@@ -1,0 +1,1580 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>电商 AI 客服知识库与质检工作台 - 在线 Demo</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --text: #172033;
+      --muted: #667085;
+      --line: #d9e2ef;
+      --soft: #eef3f9;
+      --blue: #245fdf;
+      --blue-soft: #e8f0ff;
+      --green: #087a55;
+      --green-soft: #e7f6ef;
+      --amber: #a15c00;
+      --amber-soft: #fff3d9;
+      --red: #b93815;
+      --red-soft: #fff0e9;
+      --shadow: 0 10px 28px rgba(21, 32, 43, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Microsoft YaHei", "PingFang SC", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    button,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      background: #172033;
+      color: #f8fafc;
+      padding: 24px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+    }
+
+    .brand h1 {
+      margin: 0 0 10px;
+      font-size: 22px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .brand p {
+      margin: 0;
+      color: #c9d3e2;
+      font-size: 13px;
+    }
+
+    .side-block {
+      margin-top: 22px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.14);
+    }
+
+    .side-block h2 {
+      margin: 0 0 12px;
+      font-size: 14px;
+      color: #eef4ff;
+    }
+
+    .side-list {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      font-size: 13px;
+      color: #d8e1ef;
+    }
+
+    .side-list li {
+      padding-left: 12px;
+      border-left: 3px solid #4c7ef3;
+    }
+
+    .main {
+      padding: 26px;
+      min-width: 0;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 18px;
+    }
+
+    .topbar h2 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      letter-spacing: 0;
+    }
+
+    .topbar p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      max-width: 760px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .badge.blue { color: var(--blue); background: var(--blue-soft); }
+    .badge.green { color: var(--green); background: var(--green-soft); }
+    .badge.amber { color: var(--amber); background: var(--amber-soft); }
+    .badge.red { color: var(--red); background: var(--red-soft); }
+    .badge.gray { color: #344054; background: var(--soft); }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .doc-btn {
+      min-height: 32px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .doc-btn:hover {
+      border-color: #b8cdfb;
+      color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .quality-overview {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .quality-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .quality-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .quality-card strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1.15;
+    }
+
+    .quality-card p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .stat-note,
+    .demo-guide {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .stat-note {
+      margin: 0 0 16px;
+    }
+
+    .demo-guide {
+      margin: -6px 0 18px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfdff;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 330px minmax(420px, 1fr) 360px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      min-width: 0;
+    }
+
+    .panel-header {
+      padding: 18px 18px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-header h3 {
+      margin: 0;
+      font-size: 16px;
+      letter-spacing: 0;
+    }
+
+    .panel-header p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .panel-body {
+      padding: 18px;
+    }
+
+    .input-box {
+      display: grid;
+      gap: 12px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 128px;
+      padding: 14px;
+      border: 1px solid #b9c7da;
+      border-radius: 8px;
+      resize: vertical;
+      color: var(--text);
+      background: #fbfdff;
+      outline: none;
+    }
+
+    textarea:focus,
+    select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(36, 95, 223, 0.12);
+    }
+
+    .sample-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .sample-btn,
+    .primary-btn,
+    .ghost-btn {
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .sample-btn {
+      padding: 10px 12px;
+      background: var(--soft);
+      color: var(--text);
+      font-size: 13px;
+      border: 1px solid transparent;
+    }
+
+    .sample-btn:hover,
+    .sample-btn.active {
+      background: var(--blue-soft);
+      border-color: #b8cdfb;
+      color: #1748b5;
+    }
+
+    .control-row {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    select {
+      width: 100%;
+      padding: 9px 10px;
+      border: 1px solid #b9c7da;
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .primary-btn,
+    .ghost-btn {
+      min-height: 42px;
+      padding: 0 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .primary-btn {
+      background: var(--blue);
+      color: #fff;
+      flex: 1;
+    }
+
+    .ghost-btn {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .metric-card {
+      padding: 14px;
+      background: #fbfdff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      min-height: 86px;
+    }
+
+    .metric-card > span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 7px;
+    }
+
+    .metric-card strong {
+      display: block;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .risk-standards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 0 0 16px;
+    }
+
+    .risk-standard {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfdff;
+      padding: 12px;
+      font-size: 13px;
+    }
+
+    .risk-standard strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .risk-standard p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .metric-card .metric-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .metric-card .info-dot {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 18px;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--blue);
+      border: 1px solid #bfd0ea;
+      font-size: 12px;
+      font-weight: 800;
+      font-family: Arial, sans-serif;
+      font-style: normal;
+      line-height: 1;
+      margin: 0;
+      cursor: help;
+    }
+
+    .metric-card .info-dot::after {
+      content: attr(data-tip);
+      position: absolute;
+      z-index: 5;
+      left: 50%;
+      bottom: calc(100% + 8px);
+      transform: translateX(-50%);
+      width: 260px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #172033;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 1.45;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+      white-space: normal;
+    }
+
+    .metric-card .info-dot:hover::after,
+    .metric-card .info-dot:focus::after {
+      opacity: 1;
+    }
+
+    .answer-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfdff;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .answer-title {
+      padding: 12px 14px;
+      background: var(--soft);
+      font-weight: 700;
+      font-size: 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .answer-body {
+      padding: 14px;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .answer-body ul {
+      margin: 8px 0 0;
+      padding-left: 19px;
+    }
+
+    .answer-body li {
+      margin: 4px 0;
+    }
+
+    .right-stack {
+      display: grid;
+      gap: 14px;
+    }
+
+    .mini-card {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .mini-card h4 {
+      margin: 0 0 8px;
+      font-size: 14px;
+    }
+
+    .mini-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .tag {
+      padding: 5px 8px;
+      border-radius: 8px;
+      background: var(--soft);
+      color: #344054;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .tag.red { color: var(--red); background: var(--red-soft); }
+    .tag.amber { color: var(--amber); background: var(--amber-soft); }
+    .tag.green { color: var(--green); background: var(--green-soft); }
+    .tag.blue { color: var(--blue); background: var(--blue-soft); }
+
+    .badcase-detail {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 12px;
+    }
+
+    .badcase-detail + .badcase-detail {
+      margin-top: 10px;
+    }
+
+    .badcase-detail summary {
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-weight: 700;
+    }
+
+    .badcase-detail summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .badcase-detail summary::after {
+      content: "展开";
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .badcase-detail[open] summary::after {
+      content: "收起";
+    }
+
+    .badcase-detail p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .evaluation {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .eval-item {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 96px;
+    }
+
+    .eval-item strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .eval-item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .eval-item.pass { border-color: #b7e4cc; background: #fbfffd; }
+    .eval-item.warn { border-color: #f5d28b; background: #fffaf0; }
+    .eval-item.block { border-color: #f6b6a2; background: #fff7f3; }
+
+    .empty {
+      color: var(--muted);
+      background: #fbfdff;
+      border: 1px dashed #bcc8d8;
+      padding: 18px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .footer-note {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .boundary-note {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .author-note {
+      margin-top: 8px;
+      color: #344054;
+      font-size: 12px;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(23, 32, 51, 0.42);
+      z-index: 20;
+    }
+
+    .modal.open {
+      display: flex;
+    }
+
+    .modal-card {
+      width: min(680px, 100%);
+      max-height: min(720px, 90vh);
+      overflow: auto;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 20px 60px rgba(23, 32, 51, 0.22);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .modal-header h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .modal-header button {
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .doc-list {
+      display: grid;
+      gap: 12px;
+      padding: 18px;
+      margin: 0;
+      list-style: none;
+    }
+
+    .doc-list li {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfdff;
+    }
+
+    .doc-list strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .doc-list p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .doc-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 0 18px 18px;
+    }
+
+    .doc-actions a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 0 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    @media (max-width: 1500px) {
+      .workspace {
+        grid-template-columns: minmax(300px, 0.85fr) minmax(420px, 1.15fr);
+      }
+
+      .right-stack {
+        grid-column: 1 / -1;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 1180px) {
+      .app {
+        display: block;
+      }
+
+      .sidebar {
+        position: static;
+        height: auto;
+      }
+
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .right-stack {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .main {
+        padding: 16px;
+      }
+
+      .topbar {
+        display: block;
+      }
+
+      .result-grid,
+      .risk-standards,
+      .evaluation,
+      .quality-overview {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>电商 AI 客服知识库与质检工作台</h1>
+        <p>电商售后、物流、营销、评价场景的 AI 回答质检原型。</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="topbar">
+        <div>
+          <h2>AI 问答评测工作台</h2>
+          <p>面向电商售后客服场景：点击样例后联动展示“问题分类 -> 风险分级 -> 知识库证据 -> 边界回答 -> 人工兜底 -> badcase 评测”。</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="doc-btn" id="docBtn" type="button">项目文档</button>
+          <span class="badge blue">在线作品集 Demo</span>
+        </div>
+      </section>
+
+      <section class="quality-overview" id="qualityOverview"></section>
+      <p class="stat-note">当前为测试集模拟数据，非线上实时统计。</p>
+      <p class="demo-guide">操作指引：点击左侧样例 -> 系统自动分析 -> 切换权限状态查看回答变化；也可在输入框直接输入电商客服问题。</p>
+
+      <section class="workspace">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>1. 用户输入</h3>
+          </div>
+          <div class="panel-body">
+            <div class="input-box">
+              <textarea id="questionInput" placeholder="请输入电商客服问题，例如：买家说商品破损，要求仅退款不退货，客服能直接答应吗？"></textarea>
+            </div>
+
+            <div class="sample-list" id="sampleList"></div>
+
+            <div class="control-row">
+              <label>
+                证据 / 权限状态
+                <select id="evidenceSelect">
+                  <option value="auto">按样例默认</option>
+                  <option value="hasEvidence">有授权日志 / 证据充分</option>
+                  <option value="noEvidence">无后台证据</option>
+                  <option value="noPermission">权限不足</option>
+                  <option value="conflict">证据冲突</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="actions">
+              <button class="ghost-btn" id="resetBtn">重置</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h3>2. AI 能力边界与回答</h3>
+          </div>
+          <div class="panel-body">
+            <div id="resultArea" class="empty">请选择一个样例，系统会自动分析。</div>
+          </div>
+        </div>
+
+        <div class="right-stack">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>3. 证据状态与兜底条件</h3>
+            </div>
+            <div class="panel-body" id="evidenceArea">
+              <div class="empty">默认样例加载中。</div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h3>4. badcase 根因与改进</h3>
+            </div>
+            <div class="panel-body" id="badcaseArea">
+              <div class="empty">默认样例加载中。</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="evaluation" id="evaluationArea"></section>
+      <p class="boundary-note">边界说明：本 Demo 证明电商客服场景拆解、风险分级、证据校验、badcase 闭环和人工兜底设计；不证明真实 LLM、真实 RAG、企业后台权限或商业系统已上线。</p>
+      <p class="author-note">作品集作者：徐明理 ｜ 求职方向：AI 产品助理 / SaaS 产品助理 ｜ 邮箱：1060563630@qq.com</p>
+    </main>
+  </div>
+
+  <div class="modal" id="docModal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="docTitle">
+      <div class="modal-header">
+        <h3 id="docTitle">项目文档清单</h3>
+        <button id="closeDocBtn" type="button" aria-label="关闭项目文档">×</button>
+      </div>
+      <ul class="doc-list">
+        <li>
+          <strong>产品需求文档（PRD）</strong>
+          <p>说明目标用户、核心痛点、功能范围、权限边界、人工兜底规则和当前 MVP 范围。</p>
+        </li>
+        <li>
+          <strong>评测用例集</strong>
+          <p>当前 Demo 内置 6 条电商客服样例，覆盖退款、物流、优惠券、价保、差评、错发；后续可扩展为 20 条。</p>
+        </li>
+        <li>
+          <strong>业务流程图</strong>
+          <p>展示“用户问题 -> 意图识别 -> 证据校验 -> 风险判断 -> 回答/转人工”的链路。</p>
+        </li>
+        <li>
+          <strong>Badcase 优化台账</strong>
+          <p>6 条样例共定义 18 条 badcase 类型；右侧区域只展示当前样例命中的几条，避免页面信息过载。</p>
+        </li>
+        <li>
+          <strong>作品集 PDF</strong>
+          <p>包含项目背景、核心流程、AI 边界、评测结果和交付说明，可通过下方链接下载。</p>
+        </li>
+      </ul>
+      <div class="doc-actions">
+        <a href="./assets/resume-xu-mingli.pdf" download>下载简历 PDF</a>
+        <a href="./assets/portfolio-ai-customer-service.pdf" download>下载作品集 PDF</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const riskStyles = {
+      "低风险": "green",
+      "中风险": "amber",
+      "高风险": "red"
+    };
+
+    const evidenceLabels = {
+      auto: "按样例默认",
+      hasEvidence: "有授权日志 / 证据充分",
+      noEvidence: "无后台证据",
+      noPermission: "权限不足",
+      conflict: "证据冲突"
+    };
+
+    const samples = [
+      {
+        id: "refund-damage",
+        question: "买家说商品破损，要求仅退款不退货，客服能直接答应吗？",
+        userRole: "售后客服 / 质检主管",
+        type: "售后退款审核",
+        risk: "高风险",
+        evidenceState: "conflict",
+        keywords: ["破损", "仅退款", "不退货", "退款", "赔偿"],
+        knowledgeDoc: {
+          title: "破损售后与仅退款审核规则",
+          category: "售后退款",
+          hitReason: "命中破损、仅退款、不退货等资金与责任词",
+          requireLog: "需要订单、支付、签收、图片凭证、售后规则和历史退款记录"
+        },
+        riskBasis: ["涉及资金变化", "需要判断凭证真实性", "会形成对外承诺", "可能触发平台风控"],
+        requiredEvidence: ["订单号", "物流签收状态", "破损图片/视频", "售后规则", "历史退款记录"],
+        answer: [
+          "不能直接承诺仅退款。AI 可以先整理订单、物流、图片凭证和售后规则。",
+          "如果凭证完整，可生成售后审核摘要和建议处理路径。",
+          "退款金额、是否免退货、是否赔偿必须由授权售后人员确认。"
+        ],
+        stateAnswers: {
+          noEvidence: ["缺少订单和破损凭证，AI 只能提示需补充图片、订单号和签收状态。", "禁止输出“可以退款/马上退款”等确定承诺。"],
+          noPermission: ["当前权限不足，不能查看订单和支付信息。", "只给用户提交售后申请路径，并转售后审核人员处理。"],
+          conflict: ["用户描述与物流/图片证据不一致，AI 不应给最终结论。", "应标记为证据冲突，进入人工复核。"]
+        },
+        canDo: ["汇总订单与凭证", "生成售后工单摘要", "提示需人工审核"],
+        cannotDo: ["承诺退款结果", "决定退款金额", "绕过售后规则直接赔付"],
+        handoff: "涉及退款金额、免退货、责任归属或证据冲突时必须人工复核。",
+        badcases: [
+          { tag: "无证据承诺退款", cause: "未校验订单和图片凭证", action: "缺少凭证时禁用退款承诺话术，只输出补证清单" },
+          { tag: "忽略历史风控", cause: "未检查用户历史售后频率", action: "高频仅退款用户进入人工审核队列" },
+          { tag: "责任归属误判", cause: "把物流破损、商家发错、买家使用损坏混为一类", action: "增加责任类型字段和人工确认节点" }
+        ],
+        expected: { type: "售后退款审核", risk: "高风险", handoff: "必须兜底" }
+      },
+      {
+        id: "logistics-intercept",
+        question: "买家下单后填错地址，想拦截快递并改地址，客服该怎么处理？",
+        userRole: "售后客服 / 物流客服",
+        type: "物流拦截与改址",
+        risk: "中风险",
+        evidenceState: "hasEvidence",
+        keywords: ["地址", "拦截", "快递", "物流", "改地址"],
+        knowledgeDoc: {
+          title: "物流拦截与收货地址修改规则",
+          category: "物流售后",
+          hitReason: "命中地址修改、物流拦截等履约链路词",
+          requireLog: "需要订单状态、物流节点、承运商能力和用户身份校验"
+        },
+        riskBasis: ["涉及履约状态变化", "需要校验订单归属", "不同物流节点可操作性不同"],
+        requiredEvidence: ["订单状态", "物流节点", "收货人身份", "承运商拦截结果"],
+        answer: [
+          "先确认订单是否已出库、物流是否已揽收、承运商是否支持拦截或改址。",
+          "未出库可提示用户在订单页修改；已发货只能发起拦截申请，不保证成功。",
+          "涉及具体地址和手机号时必须先做身份校验。"
+        ],
+        stateAnswers: {
+          noEvidence: ["无物流节点时不能承诺可以拦截。", "只能给通用路径：查看订单状态、联系物流客服、等待承运商反馈。"],
+          noPermission: ["权限不足时不能读取地址和手机号。", "只能提示用户本人在订单页或官方客服入口提交改址申请。"],
+          conflict: ["订单状态和物流状态不一致，应转人工确认实际包裹位置。"]
+        },
+        canDo: ["判断物流节点", "说明拦截路径", "生成客服跟进提醒"],
+        cannotDo: ["保证拦截成功", "暴露收货地址手机号", "未经确认直接改地址"],
+        handoff: "物流状态冲突、涉及隐私字段或承运商失败时转人工。",
+        badcases: [
+          { tag: "承诺拦截成功", cause: "未区分出库、揽收、派送节点", action: "按物流节点输出不同话术，禁止保证结果" },
+          { tag: "泄露地址隐私", cause: "未做身份校验", action: "地址/手机号只显示脱敏信息" },
+          { tag: "物流状态误读", cause: "订单状态与承运商状态不同步", action: "状态冲突时转人工复核" }
+        ],
+        expected: { type: "物流拦截与改址", risk: "中风险", handoff: "视证据兜底" }
+      },
+      {
+        id: "coupon-stack",
+        question: "用户说满减券和会员券没有叠加成功，要求补优惠差价。",
+        userRole: "售前/售后客服",
+        type: "优惠券规则核验",
+        risk: "中风险",
+        evidenceState: "noEvidence",
+        keywords: ["优惠券", "满减", "会员券", "叠加", "差价"],
+        knowledgeDoc: {
+          title: "优惠券叠加与补差规则",
+          category: "营销规则",
+          hitReason: "命中满减、会员券、叠加、差价等营销词",
+          requireLog: "需要活动规则、订单金额、商品类目、券适用范围和下单时间"
+        },
+        riskBasis: ["涉及优惠权益", "规则条件多且容易冲突", "可能产生补偿成本"],
+        requiredEvidence: ["活动规则", "券适用范围", "下单时间", "商品类目", "实付金额"],
+        answer: [
+          "需要先核验两张券是否允许叠加、商品是否在适用范围、下单时间是否在活动期。",
+          "AI 可以生成核验清单和初步判断，但不能直接承诺补差。",
+          "如果规则不清或订单金额异常，应转运营/客服主管复核。"
+        ],
+        stateAnswers: {
+          noEvidence: ["缺少订单和活动规则，不能判断是否应补差。", "AI 只输出核验清单：券规则、商品范围、时间、实付金额。"],
+          noPermission: ["无订单权限时不能查看用户价格信息。", "引导用户提交订单截图和券信息给人工客服。"],
+          conflict: ["活动页文案与后台券规则冲突，应进入运营复核。"]
+        },
+        canDo: ["列出核验字段", "对照券规则", "识别规则冲突"],
+        cannotDo: ["直接补发差价", "编造活动规则", "替运营解释模糊文案"],
+        handoff: "规则冲突、补偿金额、活动文案争议必须转运营/客服主管。",
+        badcases: [
+          { tag: "编造叠加规则", cause: "未读取活动配置", action: "无规则证据时只输出核验项，不给结论" },
+          { tag: "错误补差", cause: "未校验商品类目和下单时间", action: "补差前强制校验关键字段" },
+          { tag: "忽略文案争议", cause: "活动页表达与后台规则不一致", action: "标记为运营复核，不让 AI 自行解释" }
+        ],
+        expected: { type: "优惠券规则核验", risk: "中风险", handoff: "建议兜底" }
+      },
+      {
+        id: "price-protection",
+        question: "刚买完第二天就降价了，买家要求退差价，客服能自动补吗？",
+        userRole: "售后客服 / 价格保护专员",
+        type: "价保补差审核",
+        risk: "高风险",
+        evidenceState: "hasEvidence",
+        keywords: ["降价", "差价", "价保", "补差", "退差价"],
+        knowledgeDoc: {
+          title: "价格保护与差价补偿规则",
+          category: "售后补偿",
+          hitReason: "命中降价、价保、补差等资金补偿词",
+          requireLog: "需要订单时间、商品价格轨迹、价保规则和支付记录"
+        },
+        riskBasis: ["涉及资金补偿", "需要匹配价保时效", "不同商品/活动规则不同"],
+        requiredEvidence: ["订单时间", "支付金额", "商品价格轨迹", "价保时效", "活动类型"],
+        answer: [
+          "AI 可以先判断是否在价保周期内，并比对订单价与当前价。",
+          "若满足规则，可生成补差申请摘要和建议金额。",
+          "实际退款或补偿必须经过授权人员确认。"
+        ],
+        stateAnswers: {
+          noEvidence: ["缺少价格轨迹和订单金额，不能判断是否应补差。", "只能提示用户提交订单号并说明价保规则入口。"],
+          noPermission: ["权限不足时不能查看支付金额。", "只提供价保申请路径，不输出具体金额。"],
+          conflict: ["价格轨迹与活动规则冲突，需要人工确认是否属于限时活动排除项。"]
+        },
+        canDo: ["核对价保条件", "生成补差申请摘要", "提示规则例外"],
+        cannotDo: ["自动退款", "承诺补差结果", "忽略活动排除规则"],
+        handoff: "涉及具体金额、规则例外、退款执行时必须人工确认。",
+        badcases: [
+          { tag: "自动承诺补差", cause: "把规则命中误当成退款授权", action: "补差建议和退款执行分离" },
+          { tag: "忽略活动排除", cause: "未识别秒杀/限时活动规则", action: "加入活动类型校验" },
+          { tag: "金额计算错误", cause: "未区分实付、券后价、会员价", action: "补差公式中展示金额来源" }
+        ],
+        expected: { type: "价保补差审核", risk: "高风险", handoff: "必须兜底" }
+      },
+      {
+        id: "negative-review",
+        question: "买家给了恶意差评，还要赔偿，否则就继续投诉，客服能删评吗？",
+        userRole: "客服主管 / 店铺运营",
+        type: "差评投诉与赔付风控",
+        risk: "高风险",
+        evidenceState: "noPermission",
+        keywords: ["差评", "恶意", "赔偿", "投诉", "删评"],
+        knowledgeDoc: {
+          title: "差评处理、投诉升级与赔付边界",
+          category: "评价与投诉",
+          hitReason: "命中差评、赔偿、投诉、删评等高责任词",
+          requireLog: "需要聊天记录、订单履约证据、平台规则和赔付权限"
+        },
+        riskBasis: ["涉及平台规则", "可能诱导违规删评", "涉及赔付和舆情升级"],
+        requiredEvidence: ["聊天记录", "订单履约证据", "评价内容", "平台申诉规则", "赔付权限"],
+        answer: [
+          "AI 不能建议违规删评，也不能承诺赔偿。",
+          "可以整理聊天记录、订单履约证据和用户诉求，生成投诉处理摘要。",
+          "是否申诉、是否赔付、是否升级平台处理必须由人工负责人确认。"
+        ],
+        stateAnswers: {
+          noEvidence: ["没有聊天记录和订单证据时，不能判断是否恶意差评。", "只能提示收集证据和平台申诉路径。"],
+          noPermission: ["权限不足时不能查看评价、聊天记录和赔付权限。", "只提示合规处理原则，并转客服主管。"],
+          conflict: ["聊天记录与用户诉求冲突，必须由人工复核责任归属。"]
+        },
+        canDo: ["整理证据", "生成投诉摘要", "提示合规申诉路径"],
+        cannotDo: ["删除评价", "威胁或诱导用户", "承诺赔偿金额"],
+        handoff: "涉及删评、赔偿、舆情、平台规则时必须人工接管。",
+        badcases: [
+          { tag: "建议违规删评", cause: "未识别平台合规边界", action: "评价处理类问题默认禁止删评建议" },
+          { tag: "无证据认定恶意", cause: "只听商家单方描述", action: "要求绑定聊天记录和履约证据" },
+          { tag: "赔付承诺越权", cause: "未校验客服赔付权限", action: "赔付话术进入人工审批" }
+        ],
+        expected: { type: "差评投诉与赔付风控", risk: "高风险", handoff: "必须兜底" }
+      },
+      {
+        id: "wrong-item",
+        question: "用户收到的商品和下单颜色不一样，要求换货并补偿运费。",
+        userRole: "售后客服 / 仓配客服",
+        type: "错发漏发售后",
+        risk: "中风险",
+        evidenceState: "hasEvidence",
+        keywords: ["颜色", "错发", "换货", "运费", "补偿"],
+        knowledgeDoc: {
+          title: "错发漏发、换货与运费补偿规则",
+          category: "售后换货",
+          hitReason: "命中错发、颜色不一致、换货、运费补偿等售后词",
+          requireLog: "需要订单 SKU、仓库出库记录、用户图片和售后政策"
+        },
+        riskBasis: ["涉及履约错误判断", "可能产生换货和运费成本", "需要 SKU 与出库证据"],
+        requiredEvidence: ["订单 SKU", "出库记录", "用户实拍图", "售后政策", "运费规则"],
+        answer: [
+          "AI 可以比对订单 SKU、出库记录和用户图片，生成错发判断摘要。",
+          "若证据一致，可建议发起换货流程并说明运费规则。",
+          "是否补偿运费和补偿金额仍需按售后政策确认。"
+        ],
+        stateAnswers: {
+          noEvidence: ["缺少 SKU、出库记录或实拍图时，不能判断是否错发。", "只提示用户补充图片和订单信息。"],
+          noPermission: ["无仓配权限时不能查看出库记录。", "只生成用户材料清单并转售后/仓配处理。"],
+          conflict: ["SKU、出库记录和用户图片不一致时，标记为证据冲突并转人工。"]
+        },
+        canDo: ["比对 SKU 和图片", "生成售后摘要", "提示换货流程"],
+        cannotDo: ["直接判定商家责任", "直接补偿运费", "忽略仓库证据"],
+        handoff: "证据冲突、责任归属或补偿金额需人工复核。",
+        badcases: [
+          { tag: "错发误判", cause: "未核对 SKU 与出库记录", action: "错发判断必须绑定 SKU/仓库证据" },
+          { tag: "运费补偿越权", cause: "未校验售后政策和金额权限", action: "补偿建议与执行权限分离" },
+          { tag: "忽略用户凭证", cause: "只看订单不看实拍图", action: "售后摘要要求包含图片证据状态" }
+        ],
+        expected: { type: "错发漏发售后", risk: "中风险", handoff: "视证据兜底" }
+      }
+    ];
+
+    const questionInput = document.querySelector("#questionInput");
+    const sampleList = document.querySelector("#sampleList");
+    const evidenceSelect = document.querySelector("#evidenceSelect");
+    const resetBtn = document.querySelector("#resetBtn");
+    const resultArea = document.querySelector("#resultArea");
+    const evidenceArea = document.querySelector("#evidenceArea");
+    const badcaseArea = document.querySelector("#badcaseArea");
+    const evaluationArea = document.querySelector("#evaluationArea");
+    const qualityOverview = document.querySelector("#qualityOverview");
+    const docBtn = document.querySelector("#docBtn");
+    const docModal = document.querySelector("#docModal");
+    const closeDocBtn = document.querySelector("#closeDocBtn");
+
+    let activeSampleId = samples[0].id;
+    let inputTimer = null;
+
+    function escapeHtml(text) {
+      return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function renderSamples() {
+      sampleList.innerHTML = samples.map(sample => `
+        <button class="sample-btn ${sample.id === activeSampleId ? "active" : ""}" data-id="${sample.id}">
+          ${escapeHtml(sample.question)}
+        </button>
+      `).join("");
+    }
+
+    function renderQualityOverview() {
+      const total = samples.length;
+      const highRisk = samples.filter(sample => sample.risk === "高风险").length;
+      const reviewOrBlock = samples.filter(sample => sample.risk !== "低风险" || sample.evidenceState !== "hasEvidence").length;
+      const badcaseCount = samples.reduce((sum, sample) => sum + sample.badcases.length, 0);
+      const recognitionRate = Math.round((samples.filter(sample => sample.expected.type === sample.type && sample.expected.risk === sample.risk).length / total) * 100);
+
+      qualityOverview.innerHTML = `
+        <div class="quality-card">
+          <span>评测样例</span>
+          <strong>${total}</strong>
+          <p>覆盖售后、物流、营销、评价。</p>
+        </div>
+        <div class="quality-card">
+          <span>样例识别率</span>
+          <strong>${recognitionRate}%</strong>
+          <p>仅代表当前 6 条模拟样例。</p>
+        </div>
+        <div class="quality-card">
+          <span>需复核 / 拦截</span>
+          <strong>${reviewOrBlock}</strong>
+          <p>含 ${highRisk} 个高风险场景。</p>
+        </div>
+        <div class="quality-card">
+          <span>badcase 标签</span>
+          <strong>${badcaseCount}</strong>
+          <p>6 条样例共 18 条；右侧展示当前命中项。</p>
+        </div>
+      `;
+    }
+
+    function findSampleByQuestion(text) {
+      const normalized = text.trim();
+      const exact = samples.find(sample => sample.question === normalized);
+      if (exact) return exact;
+
+      const scored = samples.map(sample => {
+        const score = sample.keywords.reduce((sum, keyword) => sum + (normalized.includes(keyword) ? 1 : 0), 0);
+        return { sample, score };
+      }).sort((a, b) => b.score - a.score);
+
+      return scored[0].score > 0 ? scored[0].sample : null;
+    }
+
+    function inferEvidenceState(sample, text) {
+      if (evidenceSelect.value !== "auto") return evidenceSelect.value;
+      const normalized = text.trim();
+      const asksToChangeAddress = /帮我.*改.*地址|修改.*收货地址|改收货地址|直接.*改.*地址/.test(normalized);
+      if (sample.id === "logistics-intercept" && asksToChangeAddress) {
+        return "noPermission";
+      }
+      return sample.evidenceState;
+    }
+
+    function riskPolicyTip() {
+      return "低风险：只给公开规则和操作路径；中风险：涉及订单、物流、优惠权益，需证据校验后回答；高风险：涉及资金、赔付、投诉、权限或对外承诺，必须人工复核。";
+    }
+
+    function renderRiskStandards() {
+      return `
+        <div class="risk-standards">
+          <div class="risk-standard">
+            <strong>低风险</strong>
+            <p>公开规则、路径说明、无资金/权限变化。</p>
+          </div>
+          <div class="risk-standard">
+            <strong>中风险</strong>
+            <p>涉及订单、物流、优惠权益，需证据校验。</p>
+          </div>
+          <div class="risk-standard">
+            <strong>高风险</strong>
+            <p>涉及退款、赔付、投诉、权限或对外承诺，必须人工复核。</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function evidenceMessage(state, sample) {
+      const map = {
+        hasEvidence: {
+          title: "证据状态：有授权证据",
+          body: "可以基于知识库与授权日志给出诊断方向，但仍不能直接执行高责任操作。",
+          color: "green"
+        },
+        noEvidence: {
+          title: "证据状态：无后台证据",
+          body: "只能给排查路径，不能编造日志、触发时间或后台状态。",
+          color: "amber"
+        },
+        noPermission: {
+          title: "证据状态：权限不足",
+          body: "先提示权限要求，只给操作路径或引导有权限人员处理。",
+          color: "amber"
+        },
+        conflict: {
+          title: "证据状态：证据冲突",
+          body: "知识库、日志或用户描述不一致时，需要人工复核，AI 不应强行下结论。",
+          color: "red"
+        }
+      };
+      return map[state] || map[sample.evidenceState];
+    }
+
+    function handoffLevel(sample, state) {
+      if (sample.risk === "高风险") return "必须兜底";
+      if (state === "noEvidence" || state === "noPermission" || state === "conflict") return "建议兜底";
+      if (sample.risk === "中风险") return "视证据兜底";
+      return "不强制";
+    }
+
+    function stateContrastLine(state) {
+      const map = {
+        noEvidence: "当前无后台证据，无法定位具体订单/物流/支付状态，建议转人工或补充证据后再判断。",
+        noPermission: "当前无授权权限，无法定位具体订单/物流/支付状态，建议转人工处理。",
+        conflict: "当前证据冲突，无法定位唯一原因，建议转人工复核。"
+      };
+      return map[state];
+    }
+
+    function adjustedAnswer(sample, state) {
+      const lead = stateContrastLine(state);
+      if (sample.stateAnswers && sample.stateAnswers[state]) {
+        return lead ? [lead, ...sample.stateAnswers[state]] : sample.stateAnswers[state];
+      }
+      if (state === "noEvidence") {
+        return [
+          lead,
+          "可以先给出排查路径，并说明需要授权日志后才能给诊断结论。",
+          "如需确认具体状态，应转有权限人员或技术支持查看日志。"
+        ];
+      }
+      if (state === "noPermission") {
+        return [
+          lead,
+          "可以说明所需权限、给出自查入口，并引导联系管理员处理。",
+          "不能绕过权限直接给出工单、客户或账单结论。"
+        ];
+      }
+      if (state === "conflict") {
+        return [
+          lead,
+          "可以列出冲突点和需要人工确认的字段。",
+          "应生成复核工单，交由管理员、技术支持或质检人员确认。"
+        ];
+      }
+      return sample.answer;
+    }
+
+    function renderResult(sample, state) {
+      const riskClass = riskStyles[sample.risk] || "gray";
+      const handoff = handoffLevel(sample, state);
+      const answer = adjustedAnswer(sample, state);
+
+      resultArea.className = "";
+      resultArea.innerHTML = `
+        <div class="result-grid">
+          <div class="metric-card">
+            <span>用户角色</span>
+            <strong>${escapeHtml(sample.userRole)}</strong>
+          </div>
+          <div class="metric-card">
+            <span>问题类型</span>
+            <strong>${escapeHtml(sample.type)}</strong>
+          </div>
+          <div class="metric-card">
+            <span class="metric-title">风险等级 <span class="info-dot" tabindex="0" data-tip="${escapeHtml(riskPolicyTip())}">i</span></span>
+            <strong><span class="badge ${riskClass}">${escapeHtml(sample.risk)}</span></strong>
+          </div>
+          <div class="metric-card">
+            <span>兜底策略</span>
+            <strong>${escapeHtml(handoff)}</strong>
+          </div>
+        </div>
+
+        ${renderRiskStandards()}
+
+        <div class="answer-card">
+          <div class="answer-title">边界内回答</div>
+          <div class="answer-body">
+            <ul>${answer.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+          </div>
+        </div>
+
+        <div class="answer-card">
+          <div class="answer-title">本样例风险依据</div>
+          <div class="answer-body">
+            <ul>${sample.riskBasis.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+          </div>
+        </div>
+
+        <div class="answer-card">
+          <div class="answer-title">AI 能做什么</div>
+          <div class="answer-body">
+            <ul>${sample.canDo.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+          </div>
+        </div>
+
+        <div class="answer-card">
+          <div class="answer-title">AI 不能做什么</div>
+          <div class="answer-body">
+            <ul>${sample.cannotDo.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderEvidence(sample, state) {
+      const message = evidenceMessage(state, sample);
+      evidenceArea.innerHTML = `
+        <div class="mini-card">
+          <h4>业务知识库条目</h4>
+          <p>《${escapeHtml(sample.knowledgeDoc.title)}》</p>
+          <div class="tag-list">
+            <span class="tag blue">${escapeHtml(sample.knowledgeDoc.category)}</span>
+          </div>
+        </div>
+
+        <div class="mini-card">
+          <h4>命中原因</h4>
+          <p>${escapeHtml(sample.knowledgeDoc.hitReason)}</p>
+        </div>
+
+        <div class="mini-card">
+          <h4>权限 / 资料要求</h4>
+          <div class="tag-list">
+            ${sample.requiredEvidence.map(item => `<span class="tag">${escapeHtml(item)}</span>`).join("")}
+          </div>
+          <p class="footer-note">${escapeHtml(sample.knowledgeDoc.requireLog)}</p>
+        </div>
+
+        <div class="mini-card">
+          <h4>${escapeHtml(message.title)}</h4>
+          <p>${escapeHtml(message.body)}</p>
+          <div class="tag-list">
+            <span class="tag ${message.color}">${escapeHtml(evidenceLabels[state])}</span>
+          </div>
+        </div>
+
+        <div class="mini-card">
+          <h4>人工兜底对象</h4>
+          <p>${escapeHtml(sample.handoff)}</p>
+        </div>
+      `;
+    }
+
+    function badcaseImpact(item, sample, state) {
+      if (item.impact) return item.impact;
+      if (state === "noPermission" && item.tag.includes("权限")) return "可能泄露订单、地址、支付或评价等敏感信息，造成合规和客户信任风险。";
+      if (state === "noEvidence" && item.tag.includes("无证据")) return "客服会把不确定结论当成事实，对外承诺后难以追责和纠错。";
+      if (item.tag.includes("退款") || item.tag.includes("补差") || item.tag.includes("赔付") || item.tag.includes("补偿")) return "可能产生错误资金支出，且让客服对外承诺超过权限。";
+      if (item.tag.includes("隐私") || item.tag.includes("地址")) return "可能暴露用户隐私，触发投诉或平台处罚。";
+      if (item.tag.includes("删评") || item.tag.includes("恶意")) return "可能违反平台规则，放大投诉和舆情风险。";
+      return `会影响「${sample.type}」场景下的回答可信度，导致人工二次返工。`;
+    }
+
+    function renderBadcases(sample, state) {
+      const extra = [];
+      if (state === "noEvidence") {
+        extra.push({ tag: "无证据强答", cause: "缺少业务数据仍输出确定结论", action: "无证据时只输出排查路径和补证清单" });
+      }
+      if (state === "noPermission") {
+        extra.push({ tag: "权限未校验", cause: "未确认提问者是否可看订单/物流/支付/评价数据", action: "先做权限判断，敏感字段脱敏或转人工" });
+      }
+      if (state === "conflict") {
+        extra.push({ tag: "证据冲突仍强答", cause: "用户描述、订单、物流或规则互相矛盾", action: "标记冲突字段，生成复核工单" });
+      }
+      const items = [...sample.badcases, ...extra];
+      const uniqueItems = items.filter((item, index, arr) => arr.findIndex(other => other.tag === item.tag) === index);
+
+      badcaseArea.innerHTML = `
+        <div class="mini-card">
+          <h4>重点观察 badcase</h4>
+          <p>点击标签展开，查看业务影响、根因和优化动作。</p>
+        </div>
+        ${uniqueItems.map((item, index) => `
+          <details class="badcase-detail" ${index === 0 ? "open" : ""}>
+            <summary><span class="tag ${index % 3 === 0 ? "red" : index % 3 === 1 ? "amber" : "blue"}">${escapeHtml(item.tag)}</span></summary>
+            <p><strong>业务影响：</strong>${escapeHtml(badcaseImpact(item, sample, state))}</p>
+            <p><strong>根因：</strong>${escapeHtml(item.cause)}</p>
+            <p><strong>优化方案：</strong>${escapeHtml(item.action)}</p>
+          </details>
+        `).join("")}
+      `;
+    }
+
+    function renderEvaluation(sample, state) {
+      const handoff = handoffLevel(sample, state);
+      const typeStatus = "通过";
+      const riskStatus = sample.risk === "高风险" ? "❌ 高风险-需人工" : sample.risk === "中风险" ? "⚠️ 中风险-待复核" : "低风险-通过";
+      const evidenceStatusMap = {
+        hasEvidence: { label: "证据充分", cls: "pass" },
+        noEvidence: { label: "⚠️ 证据不足-已拦截", cls: "warn" },
+        noPermission: { label: "⚠️ 权限不足-已拦截", cls: "warn" },
+        conflict: { label: "❌ 证据冲突-转人工", cls: "block" }
+      };
+      const evidenceStatus = evidenceStatusMap[state] || evidenceStatusMap.hasEvidence;
+      const handoffStatus = (sample.risk === "高风险" || state !== "hasEvidence")
+        ? { label: sample.risk === "高风险" || state === "conflict" ? "❌ 已触发" : "⚠️ 已触发", cls: sample.risk === "高风险" || state === "conflict" ? "block" : "warn" }
+        : { label: "不强制", cls: "pass" };
+      const riskCls = sample.risk === "高风险" ? "block" : sample.risk === "中风险" ? "warn" : "pass";
+
+      evaluationArea.innerHTML = `
+        <div class="eval-item pass">
+          <strong>类型识别：${typeStatus}</strong>
+          <p>识别为「${escapeHtml(sample.type)}」，符合该样例预期。</p>
+        </div>
+        <div class="eval-item ${riskCls}">
+          <strong>风险判断：${riskStatus}</strong>
+          <p>依据：${escapeHtml(sample.riskBasis.slice(0, 2).join("；"))}。</p>
+        </div>
+        <div class="eval-item ${evidenceStatus.cls}">
+          <strong>证据检查：${evidenceStatus.label}</strong>
+          <p>${escapeHtml(evidenceLabels[state])}。无证据或权限不足时不能下最终结论。</p>
+        </div>
+        <div class="eval-item ${handoffStatus.cls}">
+          <strong>人工兜底：${handoffStatus.label}</strong>
+          <p>当前策略：${escapeHtml(handoff)}。重点检查是否漏掉高风险兜底。</p>
+        </div>
+      `;
+    }
+
+    function analyze() {
+      const text = questionInput.value.trim();
+      if (!text) {
+        resultArea.className = "empty";
+        resultArea.textContent = "请先输入问题，或点击左侧 6 个示例问题。";
+        return;
+      }
+
+      const sample = findSampleByQuestion(text);
+      if (!sample) {
+        resultArea.className = "empty";
+        resultArea.textContent = "当前 Demo 只覆盖 6 条核心样例。这个问题可以作为后续评测集扩展项。";
+        evidenceArea.innerHTML = "<div class=\"empty\">未命中当前业务知识库。</div>";
+        badcaseArea.innerHTML = "<div class=\"empty\">可记录为“未覆盖问题 / 知识库缺口”。</div>";
+        evaluationArea.innerHTML = "";
+        return;
+      }
+
+      activeSampleId = sample.id;
+      renderSamples();
+      const state = inferEvidenceState(sample, text);
+      renderResult(sample, state);
+      renderEvidence(sample, state);
+      renderBadcases(sample, state);
+      renderEvaluation(sample, state);
+    }
+
+    sampleList.addEventListener("click", (event) => {
+      const btn = event.target.closest("button[data-id]");
+      if (!btn) return;
+      const sample = samples.find(item => item.id === btn.dataset.id);
+      if (!sample) return;
+      activeSampleId = sample.id;
+      questionInput.value = sample.question;
+      evidenceSelect.value = "auto";
+      renderSamples();
+      analyze();
+    });
+
+    evidenceSelect.addEventListener("change", analyze);
+    questionInput.addEventListener("input", () => {
+      clearTimeout(inputTimer);
+      inputTimer = setTimeout(analyze, 250);
+    });
+
+    docBtn.addEventListener("click", () => {
+      docModal.classList.add("open");
+      docModal.setAttribute("aria-hidden", "false");
+    });
+
+    closeDocBtn.addEventListener("click", () => {
+      docModal.classList.remove("open");
+      docModal.setAttribute("aria-hidden", "true");
+    });
+
+    docModal.addEventListener("click", (event) => {
+      if (event.target === docModal) {
+        docModal.classList.remove("open");
+        docModal.setAttribute("aria-hidden", "true");
+      }
+    });
+
+    resetBtn.addEventListener("click", () => {
+      activeSampleId = samples[0].id;
+      questionInput.value = samples[0].question;
+      evidenceSelect.value = "auto";
+      renderSamples();
+      analyze();
+    });
+
+    renderSamples();
+    renderQualityOverview();
+    questionInput.value = samples[0].question;
+    analyze();
+  </script>
+</body>
+</html>
