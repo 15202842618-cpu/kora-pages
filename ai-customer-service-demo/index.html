@@ -281,6 +281,53 @@
       margin-top: 14px;
     }
 
+    .scene-tabs {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .scene-tab {
+      min-height: 38px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .scene-tab:hover,
+    .scene-tab.active {
+      border-color: #b8cdfb;
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    .scene-disclaimer {
+      display: none;
+      margin-top: 12px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfdff;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .scene-disclaimer.is-visible {
+      display: block;
+    }
+
+    .scene-disclaimer strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+
     .sample-btn,
     .primary-btn,
     .ghost-btn {
@@ -296,6 +343,19 @@
       color: var(--text);
       font-size: 13px;
       border: 1px solid transparent;
+    }
+
+    .sample-title {
+      display: block;
+      font-weight: 800;
+      margin-bottom: 3px;
+    }
+
+    .sample-question {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
     }
 
     .sample-btn:hover,
@@ -540,6 +600,80 @@
     .tag.green { color: var(--green); background: var(--green-soft); }
     .tag.blue { color: var(--blue); background: var(--blue-soft); }
 
+    .tag.gray { color: #344054; background: var(--soft); }
+
+    .answer-compare,
+    .optimization-grid,
+    .source-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .compare-card,
+    .source-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 12px;
+      min-width: 0;
+    }
+
+    .compare-card.wrong {
+      border-color: #f6b6a2;
+      background: #fff7f3;
+    }
+
+    .compare-card.expected {
+      border-color: #b7e4cc;
+      background: #fbfffd;
+    }
+
+    .compare-card strong,
+    .source-card strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .compare-card p,
+    .source-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .source-priority,
+    .conflict-box {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    .source-priority {
+      border: 1px solid var(--line);
+      background: #fbfdff;
+      color: var(--muted);
+    }
+
+    .conflict-box {
+      border: 1px solid #f5d28b;
+      background: #fffaf0;
+      color: var(--text);
+    }
+
+    .conflict-box strong {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .conflict-box ul {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
     .badcase-detail {
       border: 1px solid var(--line);
       border-radius: 8px;
@@ -779,6 +913,10 @@
 
       .result-grid,
       .risk-standards,
+      .scene-tabs,
+      .answer-compare,
+      .optimization-grid,
+      .source-grid,
       .evaluation,
       .quality-overview {
         grid-template-columns: 1fr;
@@ -820,6 +958,9 @@
             <div class="input-box">
               <textarea id="questionInput" placeholder="请输入电商客服问题，例如：买家说商品破损，要求仅退款不退货，客服能直接答应吗？"></textarea>
             </div>
+
+            <div class="scene-tabs" id="sceneTabs" aria-label="场景模块切换"></div>
+            <div class="scene-disclaimer" id="sceneDisclaimer"></div>
 
             <div class="sample-list" id="sampleList"></div>
 
@@ -891,7 +1032,7 @@
         </li>
         <li>
           <strong>评测用例集</strong>
-          <p>当前 Demo 内置 6 条电商客服样例，覆盖退款、物流、优惠券、价保、差评、错发；后续可扩展为 20 条。</p>
+          <p>当前 Demo 内置通用电商 6 条和家具电商 6 条模拟样例，覆盖退款、物流、优惠券、价保、差评、错发，以及入户、上楼费、质保、发货、清洗和导购推荐。</p>
         </li>
         <li>
           <strong>业务流程图</strong>
@@ -899,7 +1040,7 @@
         </li>
         <li>
           <strong>Badcase 优化台账</strong>
-          <p>6 条样例共定义 18 条 badcase 类型；右侧区域只展示当前样例命中的几条，避免页面信息过载。</p>
+          <p>通用场景保留原 badcase 台账，家具场景补充根因、业务影响、优化动作和回归测试，展示从错误回答到规则迭代的闭环。</p>
         </li>
         <li>
           <strong>作品集 PDF</strong>
@@ -1147,7 +1288,273 @@
       }
     ];
 
+    const sceneGroups = [
+      { id: "general", label: "通用电商场景" },
+      {
+        id: "furniture",
+        label: "家具电商场景",
+        note: "公开资料模拟场景",
+        disclaimer: "本模块基于SINABO天猫店公开商品参数、服务政策及用户问答整理，仅用于产品逻辑与评测方法演示，不代表成都思普家具或SINABO官方系统及最终业务口径。"
+      }
+    ];
+
+    const sourceStyles = {
+      "公司正式政策": "blue",
+      "商品官方参数": "green",
+      "商家官方回复": "amber",
+      "买家体验": "gray",
+      "待业务确认": "red"
+    };
+
+    const sourcePriorityText = "可信度优先级：公司正式政策 ＞ 商品官方参数 ＞ 商家官方回复 ＞ 买家体验。买家体验只能辅助理解用户表达，不能作为 AI 确定性承诺依据。";
+
+    const furnitureSamples = [
+      {
+        id: "furniture-sofa-entry",
+        category: "furniture",
+        title: "沙发入户判断",
+        question: "我家入户门净宽79.6厘米，买220cm的怀抱沙发能进去吗？",
+        userRole: "售前客服 / 送装确认人员",
+        type: "家具入户可行性判断",
+        risk: "高风险",
+        evidenceState: "noEvidence",
+        product: "K2311B怀抱沙发，220×90×90cm规格",
+        keywords: ["入户", "门净宽", "79.6", "220cm", "沙发", "能进去"],
+        sources: ["商品官方参数", "买家体验", "待业务确认"],
+        knownFacts: ["用户只提供了入户门净宽79.6cm", "已知用户咨询220cm规格", "未确认具体包装尺寸", "未确认是否可以拆分", "未确认门高、电梯、楼道和转角"],
+        knowledgeDoc: {
+          title: "沙发规格、包装尺寸与入户确认规则",
+          category: "家具售前送装",
+          hitReason: "命中门宽、沙发规格、是否能入户等高风险承诺词",
+          requireLog: "需要包装尺寸、可拆分状态、门高、电梯尺寸、楼道转角和完整搬运路径。"
+        },
+        riskBasis: ["只知道门宽，不能代表完整入户路径", "成品尺寸不等于包装尺寸", "错误承诺会产生吊装、退货运费、二次配送和投诉"],
+        requiredEvidence: ["包装尺寸", "可拆分状态", "门宽/门高", "电梯尺寸", "楼道转角", "送装人工复核"],
+        wrongAnswer: "可以的，79.6厘米的门能够正常进入，没有问题。",
+        expectedAnswer: "目前仅凭79.6厘米的门宽还不能准确判断。还需要核对该规格的包装尺寸、可拆分情况、门框净高、电梯尺寸、楼道转角和完整搬运路径。建议您补充这些尺寸，或由人工客服和送装人员进一步确认，暂时不建议直接保证可以入户。",
+        aiActions: ["需要补充信息", "必须转人工", "禁止承诺"],
+        transferRequired: "是",
+        answer: ["目前不能直接判断可以入户。AI 只能先收集门宽、门高、电梯、楼道转角、包装尺寸和可拆分状态。", "包装尺寸和送装路径未确认前，不能使用“一定能进”等确定性表达。", "应转人工客服或送装人员复核。"],
+        canDo: ["收集入户尺寸", "提示包装尺寸和可拆分信息", "生成送装复核工单"],
+        cannotDo: ["保证一定可以入户", "把买家体验当事实", "替送装人员确认最终可行性"],
+        handoff: "涉及入户可行性、额外吊装费、退货运费或用户要求承诺时必须人工复核。",
+        badcases: [
+          { tag: "无证据承诺入户", cause: "将成品尺寸当作包装尺寸，且没有完整搬运路径", action: "缺少包装/路径字段时强制转人工" },
+          { tag: "买家体验当事实", cause: "把其他用户“应该可以”的回答当作确定依据", action: "买家体验只能辅助参考，不能作为承诺依据" }
+        ],
+        rootCauses: ["将成品尺寸当作包装尺寸", "缺少完整入户判断规则", "未识别错误承诺可能造成业务损失"],
+        businessImpact: ["无法入户", "产生吊装费", "产生退货运费", "二次配送", "客户投诉"],
+        optimizationActions: ["增加包装尺寸字段", "增加商品可拆分状态", "回答前必须收集门宽、门高、电梯和楼道数据", "无法判断时强制转人工", "禁止使用“一定可以进入”等确定性表达"],
+        regressionTests: ["只提供门宽", "门宽与包装宽度接近", "无电梯", "楼道存在转角", "用户要求 AI 保证可以入户"],
+        expected: { type: "家具入户可行性判断", risk: "高风险", handoff: "必须兜底" }
+      },
+      {
+        id: "furniture-upstairs-fee",
+        category: "furniture",
+        title: "配送上楼费用",
+        question: "你们不是全国包配送、包上门、包安装吗？我住8楼没有电梯，也是全部免费吧？",
+        userRole: "售前客服 / 履约客服",
+        type: "家具配送与特殊入户费用",
+        risk: "高风险",
+        evidenceState: "noEvidence",
+        product: "SINABO五包服务、人工上楼及特殊入户政策",
+        keywords: ["包配送", "包上门", "包安装", "8楼", "没有电梯", "免费"],
+        sources: ["公司正式政策", "待业务确认"],
+        knownFacts: ["公开服务描述包含配送、上门和安装", "实际覆盖以第三方服务商正常覆盖区域为准", "7楼以上或无电梯可能产生人工搬楼、吊装等额外费用", "最终费用需要结合地址、商品体积和服务商确认"],
+        knowledgeDoc: {
+          title: "五包服务与特殊入户费用规则",
+          category: "家具履约服务",
+          hitReason: "命中包配送、无电梯、8楼、是否免费等费用承诺词",
+          requireLog: "需要收货地址、楼层、电梯状态、商品体积、服务商覆盖范围和最终报价确认。"
+        },
+        riskBasis: ["涉及费用承诺", "特殊入户条件会改变履约成本", "第三方服务商覆盖范围和报价需要确认"],
+        requiredEvidence: ["收货地址", "楼层", "电梯状态", "商品型号/体积", "服务商收费标准", "人工确认"],
+        wrongAnswer: "是的，全国都是免费送货上楼并安装，不会产生任何额外费用。",
+        expectedAnswer: "SINABO提供配送、上门和安装服务，但特殊入户情况可能产生额外费用。您所在的8楼没有电梯，可能涉及人工搬楼费用；具体还需要结合商品包装体积、收货地址和当地第三方服务商的执行标准确认。建议下单前由人工客服核实最终费用，我目前不能直接承诺全部免费。",
+        aiActions: ["只能解释流程", "必须转人工", "禁止承诺"],
+        transferRequired: "是",
+        answer: ["可以解释五包服务和特殊入户的区别，但不能承诺所有楼层全部免费。", "8楼无电梯属于需要人工确认的特殊履约条件。", "最终费用应由人工客服或服务商确认。"],
+        canDo: ["解释服务范围", "收集地址/楼层/电梯信息", "提示可能产生额外费用"],
+        cannotDo: ["直接报价", "承诺全部免费", "替第三方服务商确认费用"],
+        handoff: "涉及特殊楼层、吊装、超区、服务商收费或用户要求明确费用时必须转人工。",
+        badcases: [
+          { tag: "越权承诺免费", cause: "只读取宣传语，忽略楼层、电梯和服务商条件", action: "宣传语和执行条件分开存储，费用类结论转人工" },
+          { tag: "漏问关键条件", cause: "未收集地址、楼层、电梯和商品体积", action: "回答前增加必问字段" }
+        ],
+        rootCauses: ["只读取“五包服务”宣传语", "忽略楼层和电梯条件", "忽略第三方服务商范围", "AI 越权承诺免费"],
+        businessImpact: ["费用争议", "下单后取消", "客户投诉", "平台纠纷"],
+        optimizationActions: ["将宣传语和执行条件分开存储", "回答前询问地址、楼层、电梯和商品型号", "最终费用必须由人工或服务商确认", "增加特殊入户费用提示", "禁止 AI 直接报价或承诺免费"],
+        regressionTests: ["6楼无电梯", "8楼无电梯", "电梯故障", "超区地址", "需要吊装", "用户要求承诺所有费用全免"],
+        expected: { type: "家具配送与特殊入户费用", risk: "高风险", handoff: "必须兜底" }
+      },
+      {
+        id: "furniture-warranty-conflict",
+        category: "furniture",
+        title: "质保规则冲突",
+        question: "页面有的地方写3年质保，有的规格又写5年内塌陷免费换新，到底是哪一个？",
+        userRole: "售后客服 / 质检主管",
+        type: "质保政策冲突识别",
+        risk: "高风险",
+        evidenceState: "conflict",
+        product: "全店一般质保与部分沙发专项保障",
+        keywords: ["3年质保", "5年", "塌陷", "免费换新", "质保", "到底"],
+        sources: ["公司正式政策", "商品官方参数", "待业务确认"],
+        knownFacts: ["店铺服务政策可能显示大件家具及小件商品提供3年质保", "部分沙发 SKU 描述可能显示5年内特定塌陷问题免费换新", "两类政策可能对应一般质保和专项部件保障", "需要确认 SKU、部件、问题类型、购买时间和使用情况"],
+        conflictEvidence: {
+          title: "检测到知识冲突",
+          items: ["证据A：店铺一般政策 - 3年质保", "证据B：部分沙发SKU - 5年内特定塌陷问题免费换新"],
+          suggestion: ["暂停确定性回答", "确认适用 SKU 和部件", "转人工复核"]
+        },
+        knowledgeDoc: {
+          title: "一般质保与专项塌陷保障规则",
+          category: "售后质保",
+          hitReason: "命中3年质保、5年换新、塌陷等政策冲突词",
+          requireLog: "需要 SKU、购买时间、问题部件、塌陷判定标准、排除条件和最终审批权限。"
+        },
+        riskBasis: ["公开信息存在政策层级冲突", "涉及售后承诺和免费换新成本", "AI 不能自行解释模糊政策"],
+        requiredEvidence: ["具体 SKU", "购买时间", "问题部件", "问题类型", "塌陷判定标准", "审批权限"],
+        wrongAnswer: "所有沙发都是5年质保，五年内任何问题都可以免费换新。",
+        expectedAnswer: "从公开页面看，店铺一般售后政策为3年质保，部分沙发规格另有“5年内特定塌陷问题”的专项保障。这两项可能分别对应一般质保和特定部件保障，并不等于所有问题都享受5年免费换新。需要根据您的具体型号、问题部位、购买时间和使用情况，由人工客服确认最终适用政策。",
+        aiActions: ["只能解释流程", "必须转人工", "禁止承诺"],
+        transferRequired: "是",
+        answer: ["当前存在知识冲突，不能直接给出确定性承诺。", "AI 可以解释一般质保和专项保障可能不是同一层政策。", "必须收集 SKU、部件、购买时间和问题类型后转人工复核。"],
+        canDo: ["标记知识冲突", "列出需确认字段", "生成售后复核摘要"],
+        cannotDo: ["承诺五年内任何问题免费换新", "把一般质保和专项保障合并", "替人工审批售后结果"],
+        handoff: "涉及质保年限冲突、免费换新、部件判定或售后审批时必须人工复核。",
+        badcases: [
+          { tag: "政策合并错误", cause: "将一般质保和专项保障错误合并", action: "知识库拆分一般质保、专项保障、适用 SKU、适用部件和审批权限" },
+          { tag: "无证据承诺换新", cause: "未确认购买时间、部件和排除条件", action: "质保承诺必须命中完整字段并转人工审批" }
+        ],
+        rootCauses: ["将一般质保和专项保障错误合并", "未区分适用 SKU", "未区分部件和问题类型", "AI 自行解释模糊政策"],
+        businessImpact: ["错误售后承诺", "免费换新争议", "赔付损失", "客户投诉"],
+        optimizationActions: ["拆分一般质保政策", "拆分专项塌陷保障", "记录适用 SKU、部件、判定标准、排除条件和审批权限", "检测冲突时暂停确定性回答", "转人工复核"],
+        regressionTests: ["用户只问质保几年", "面料损坏是否5年换新", "人为损坏是否适用", "坐垫塌陷咨询", "用户要求直接承诺整件换新"],
+        expected: { type: "质保政策冲突识别", risk: "高风险", handoff: "必须兜底" }
+      },
+      {
+        id: "furniture-shipping-time",
+        category: "furniture",
+        title: "发货时效解释",
+        question: "页面写30天内发货，是不是我下单后30天内一定能收到？",
+        userRole: "售前客服 / 履约客服",
+        type: "预售发货与到货时效解释",
+        risk: "中风险",
+        evidenceState: "hasEvidence",
+        product: "预售家具发货和配送时效",
+        keywords: ["30天", "发货", "收到", "到货", "一定"],
+        sources: ["商品官方参数", "公司正式政策"],
+        knownFacts: ["商品页标注预售，30天内发货", "发货不等于到货", "到货还受生产、物流、地区和送装预约影响"],
+        knowledgeDoc: {
+          title: "预售发货时间与预计到货说明",
+          category: "履约时效",
+          hitReason: "命中30天内发货、是否到货、是否保证等时效承诺词",
+          requireLog: "需要商品预售状态、收货地区、物流线路和送装预约信息。"
+        },
+        riskBasis: ["用户将发货理解为到货", "精确到货日期需要物流和送装信息", "错误承诺会引发催单、退款和投诉"],
+        requiredEvidence: ["预售状态", "发货规则", "收货地区", "物流线路", "送装预约"],
+        wrongAnswer: "是的，下单后30天内保证送到家。",
+        expectedAnswer: "页面标注的是预售商品，预计30天内发货，并不是保证30天内送达。最终到货时间还会受到生产进度、物流线路、收货地区和送装预约影响。下单前可以让客服根据具体商品和地址进一步预估，但不能承诺固定到货日期。",
+        aiActions: ["可以直接回答", "用户要求精确日期时转人工", "禁止承诺"],
+        transferRequired: "条件触发",
+        answer: ["可以直接解释“30天内发货”不等于“30天内到货”。", "如果用户要求固定日期或赔付承诺，需要人工结合地址和物流确认。"],
+        canDo: ["解释发货/到货区别", "提示影响因素", "收集地址用于人工预估"],
+        cannotDo: ["保证固定到货日期", "把预售发货期说成送达期", "承诺延误赔付"],
+        handoff: "用户要求精确到货日期、活动节点保障或赔付承诺时转人工。",
+        badcases: [
+          { tag: "混淆发货和到货", cause: "把页面发货时效误读为送达承诺", action: "知识库拆分发货时间和预计到货时间" },
+          { tag: "扩大时效承诺", cause: "忽略物流和预约安装阶段", action: "禁止使用保证某日到达" }
+        ],
+        rootCauses: ["混淆发货和到货", "对时效作扩大承诺", "忽略物流和预约安装阶段"],
+        businessImpact: ["到货时间争议", "催单", "退款", "投诉"],
+        optimizationActions: ["将发货时间和预计到货时间拆分", "明确预售状态", "精确时效需要结合地址和物流确认", "禁止使用“保证某日到达”"],
+        regressionTests: ["30天内发货", "30天内到货", "用户要求指定日期送达", "用户位于偏远地区", "大促期间时效咨询"],
+        expected: { type: "预售发货与到货时效解释", risk: "中风险", handoff: "条件兜底" }
+      },
+      {
+        id: "furniture-washable-boundary",
+        category: "furniture",
+        title: "可拆洗边界",
+        question: "这个沙发写着可拆洗，是不是所有布套拆下来直接放洗衣机都可以？",
+        userRole: "售前客服 / 售后客服",
+        type: "商品参数边界解释",
+        risk: "中风险",
+        evidenceState: "noEvidence",
+        product: "清风沙发或怀抱沙发的具体面料及可拆洗结构",
+        keywords: ["可拆洗", "布套", "洗衣机", "机洗", "所有"],
+        sources: ["商品官方参数", "商家官方回复", "待业务确认"],
+        knownFacts: ["部分商品标注支持拆洗", "部分官方回复提到面料做过预水洗", "部分面料可使用轻柔模式清洗", "不能推断全店所有布套、内胆和结构都可以机洗"],
+        knowledgeDoc: {
+          title: "可拆洗部位与清洗方式说明",
+          category: "商品参数边界",
+          hitReason: "命中可拆洗、所有布套、洗衣机等泛化风险词",
+          requireLog: "需要具体 SKU、面料、可拆部位、外套/内胆/填充物区别和官方清洗说明。"
+        },
+        riskBasis: ["可拆不等于可机洗", "不同 SKU、面料和部位清洗规则不同", "错误指导会造成面料缩水、损坏和售后争议"],
+        requiredEvidence: ["具体 SKU", "面料", "可拆部位", "外套/内胆/填充物", "清洗方式"],
+        wrongAnswer: "可以，整套沙发的布套和内胆都能直接机洗。",
+        expectedAnswer: "商品标注支持拆洗，但“可拆洗”不代表所有部位和内胆都能直接机洗。需要确认您购买的具体型号、面料以及可拆部位。部分该款面料的官方说明支持轻柔模式清洗，但内胆、填充物和不可拆结构不能按照布套方式处理，建议以对应SKU的清洗说明为准。",
+        aiActions: ["需要补充信息", "可以解释部分规则", "禁止承诺"],
+        transferRequired: "无法确认具体 SKU 和面料时转人工",
+        answer: ["可以解释“可拆洗”的边界，但不能泛化为所有布套和内胆都能机洗。", "需要先确认 SKU、面料和可拆部位。", "无法确认时应转人工或提供官方清洗说明入口。"],
+        canDo: ["解释可拆和可机洗的区别", "收集 SKU/面料信息", "提示按官方清洗说明处理"],
+        cannotDo: ["承诺所有部位可机洗", "把某款规则泛化到全店", "指导清洗内胆或填充物"],
+        handoff: "无法确认具体 SKU、面料或用户已洗坏产生售后争议时转人工。",
+        badcases: [
+          { tag: "可拆等于可机洗", cause: "将可拆与可机洗混为一谈", action: "知识库区分外套、内胆和填充物" },
+          { tag: "SKU 规则泛化", cause: "把特定型号规则套到全店", action: "不同商品清洗知识禁止互相复用" }
+        ],
+        rootCauses: ["将可拆与可机洗混为一谈", "将特定型号规则泛化到全店", "忽略外套、内胆和填充物差异"],
+        businessImpact: ["布套缩水", "面料损坏", "售后争议", "用户错误操作"],
+        optimizationActions: ["为每个 SKU 记录可拆部位", "记录面料对应清洗方式", "区分外套、内胆和填充物", "不同商品清洗知识禁止互相复用", "回答前确认型号和面料"],
+        regressionTests: ["所有布套是否机洗", "是否可以烘干", "内胆是否水洗", "不同颜色是否同样清洗", "用户没有提供商品型号"],
+        expected: { type: "商品参数边界解释", risk: "中风险", handoff: "条件兜底" }
+      },
+      {
+        id: "furniture-product-compare",
+        category: "furniture",
+        title: "商品对比推荐",
+        question: "我家客厅不大，清风和怀抱沙发哪一个更适合？我喜欢软一点的。",
+        userRole: "售前客服 / 导购助手",
+        type: "商品对比与条件推荐",
+        risk: "中风险",
+        evidenceState: "hasEvidence",
+        product: "K2235B清风沙发与K2311B怀抱沙发",
+        keywords: ["清风", "怀抱", "客厅不大", "适合", "软一点", "推荐"],
+        sources: ["商品官方参数", "买家体验"],
+        knownFacts: ["清风沙发约220cm至318cm，深度约100cm，坐感适中", "怀抱沙发约150cm至300cm，深度约90cm，坐感偏软", "用户未提供墙面长度、客厅面积、家庭人数、预算和入户条件"],
+        knowledgeDoc: {
+          title: "沙发参数对比与售前需求收集",
+          category: "商品导购",
+          hitReason: "命中商品对比、客厅大小、坐感偏好和推荐意图",
+          requireLog: "需要可用墙面长度、客厅面积、家庭人数、常用姿势、预算、颜色偏好和入户条件。"
+        },
+        riskBasis: ["推荐需要基于用户空间和使用需求", "商品参数充分但用户需求不足", "直接替用户决策会导致不匹配和退换货"],
+        requiredEvidence: ["墙面长度", "客厅面积", "家庭人数", "几人位", "是否经常躺坐", "预算", "入户条件"],
+        wrongAnswer: "怀抱沙发一定更适合您家，直接买220cm就可以。",
+        expectedAnswer: "如果您喜欢偏软的坐感，同时客厅空间不大，怀抱沙发目前看会更接近您的需求。它从约150cm规格起，深度约90cm，小户型可选尺寸更多；清风沙发从约220cm起，深度约100cm，坐感更偏适中。不过还需要知道您家可用墙面长度和家庭人数，才能推荐具体规格。您方便提供一下墙面长度吗？",
+        aiActions: ["需要补充信息", "可以进行有条件推荐", "禁止绝对表达"],
+        transferRequired: "一般不需要，复杂户型或入户问题时转人工",
+        answer: ["可以基于公开参数做有条件推荐。", "用户未提供墙面长度和家庭人数前，不能直接推荐具体规格。", "复杂户型或入户问题需要转人工确认。"],
+        canDo: ["对比结构化参数", "提出追问", "给出有条件推荐"],
+        cannotDo: ["替用户直接决定规格", "使用“一定适合”等绝对表达", "忽略入户条件"],
+        handoff: "涉及复杂户型、入户可行性或用户要求明确规格承诺时转人工。",
+        badcases: [
+          { tag: "直接推荐具体规格", cause: "未收集用户空间需求", action: "推荐结果必须附带适用条件和追问" },
+          { tag: "商品倾向当确定结论", cause: "把偏软、偏小户型描述成绝对适合", action: "使用条件化表达，禁止“一定适合”" }
+        ],
+        rootCauses: ["未收集用户空间需求", "直接推荐具体规格", "将商品倾向描述为确定结论", "忽略入户和使用人数"],
+        businessImpact: ["推荐不匹配", "退换货", "客户不满意", "降低转化"],
+        optimizationActions: ["建立售前需求采集流程", "比较商品时使用结构化参数", "推荐结果必须附带适用条件", "最终规格需要结合墙面长度", "入户条件单独确认"],
+        regressionTests: ["用户只说小户型", "用户喜欢偏硬", "用户经常躺坐", "有儿童或宠物", "可用墙面只有2米", "用户要求 AI 直接替他决定规格"],
+        expected: { type: "商品对比与条件推荐", risk: "中风险", handoff: "条件兜底" }
+      }
+    ];
+
+    samples.push(...furnitureSamples);
+
     const questionInput = document.querySelector("#questionInput");
+    const sceneTabs = document.querySelector("#sceneTabs");
+    const sceneDisclaimer = document.querySelector("#sceneDisclaimer");
     const sampleList = document.querySelector("#sampleList");
     const evidenceSelect = document.querySelector("#evidenceSelect");
     const resetBtn = document.querySelector("#resetBtn");
@@ -1160,6 +1567,7 @@
     const docModal = document.querySelector("#docModal");
     const closeDocBtn = document.querySelector("#closeDocBtn");
 
+    let activeGroupId = "general";
     let activeSampleId = samples[0].id;
     let inputTimer = null;
 
@@ -1172,31 +1580,71 @@
         .replace(/'/g, "&#039;");
     }
 
-    function renderSamples() {
-      sampleList.innerHTML = samples.map(sample => `
-        <button class="sample-btn ${sample.id === activeSampleId ? "active" : ""}" data-id="${sample.id}">
-          ${escapeHtml(sample.question)}
+    function sampleGroup(sample) {
+      return sample.category || "general";
+    }
+
+    function currentGroup() {
+      return sceneGroups.find(group => group.id === activeGroupId) || sceneGroups[0];
+    }
+
+    function visibleSamples() {
+      return samples.filter(sample => sampleGroup(sample) === activeGroupId);
+    }
+
+    function renderSceneTabs() {
+      sceneTabs.innerHTML = sceneGroups.map(group => `
+        <button class="scene-tab ${group.id === activeGroupId ? "active" : ""}" type="button" data-group="${group.id}">
+          ${escapeHtml(group.label)}
         </button>
       `).join("");
     }
 
+    function renderSceneDisclaimer() {
+      const group = currentGroup();
+      if (!group.disclaimer) {
+        sceneDisclaimer.className = "scene-disclaimer";
+        sceneDisclaimer.innerHTML = "";
+        return;
+      }
+      sceneDisclaimer.className = "scene-disclaimer is-visible";
+      sceneDisclaimer.innerHTML = `
+        <strong>${escapeHtml(group.note || group.label)}</strong>
+        ${escapeHtml(group.disclaimer)}
+      `;
+    }
+
+    function renderSamples() {
+      const groupSamples = visibleSamples();
+      sampleList.innerHTML = groupSamples.map(sample => `
+        <button class="sample-btn ${sample.id === activeSampleId ? "active" : ""}" data-id="${sample.id}">
+          <span class="sample-title">${escapeHtml(sample.title || sample.type)}</span>
+          <span class="sample-question">${escapeHtml(sample.question)}</span>
+        </button>
+      `).join("");
+      renderSceneTabs();
+      renderSceneDisclaimer();
+    }
+
     function renderQualityOverview() {
-      const total = samples.length;
-      const highRisk = samples.filter(sample => sample.risk === "高风险").length;
-      const reviewOrBlock = samples.filter(sample => sample.risk !== "低风险" || sample.evidenceState !== "hasEvidence").length;
-      const badcaseCount = samples.reduce((sum, sample) => sum + sample.badcases.length, 0);
-      const recognitionRate = Math.round((samples.filter(sample => sample.expected.type === sample.type && sample.expected.risk === sample.risk).length / total) * 100);
+      const groupSamples = visibleSamples();
+      const total = groupSamples.length;
+      const highRisk = groupSamples.filter(sample => sample.risk === "高风险").length;
+      const reviewOrBlock = groupSamples.filter(sample => sample.risk !== "低风险" || sample.evidenceState !== "hasEvidence").length;
+      const badcaseCount = groupSamples.reduce((sum, sample) => sum + sample.badcases.length, 0);
+      const recognitionRate = Math.round((groupSamples.filter(sample => sample.expected.type === sample.type && sample.expected.risk === sample.risk).length / total) * 100);
+      const group = currentGroup();
 
       qualityOverview.innerHTML = `
         <div class="quality-card">
           <span>评测样例</span>
           <strong>${total}</strong>
-          <p>覆盖售后、物流、营销、评价。</p>
+          <p>${escapeHtml(group.label)}，覆盖售后、物流、营销、评价或家具履约。</p>
         </div>
         <div class="quality-card">
           <span>样例识别率</span>
           <strong>${recognitionRate}%</strong>
-          <p>仅代表当前 6 条模拟样例。</p>
+          <p>仅代表当前 ${total} 条模拟样例，不代表真实线上准确率。</p>
         </div>
         <div class="quality-card">
           <span>需复核 / 拦截</span>
@@ -1206,22 +1654,30 @@
         <div class="quality-card">
           <span>badcase 标签</span>
           <strong>${badcaseCount}</strong>
-          <p>6 条样例共 18 条；右侧展示当前命中项。</p>
+          <p>右侧展示当前命中项和优化闭环。</p>
         </div>
       `;
     }
 
     function findSampleByQuestion(text) {
       const normalized = text.trim();
-      const exact = samples.find(sample => sample.question === normalized);
+      const groupSamples = visibleSamples();
+      const exact = groupSamples.find(sample => sample.question === normalized) || samples.find(sample => sample.question === normalized);
       if (exact) return exact;
 
-      const scored = samples.map(sample => {
+      const scoped = groupSamples.length ? groupSamples : samples;
+      const scored = scoped.map(sample => {
+        const score = sample.keywords.reduce((sum, keyword) => sum + (normalized.includes(keyword) ? 1 : 0), 0);
+        return { sample, score };
+      }).sort((a, b) => b.score - a.score);
+      if (scored[0] && scored[0].score > 0) return scored[0].sample;
+
+      const allScored = samples.map(sample => {
         const score = sample.keywords.reduce((sum, keyword) => sum + (normalized.includes(keyword) ? 1 : 0), 0);
         return { sample, score };
       }).sort((a, b) => b.score - a.score);
 
-      return scored[0].score > 0 ? scored[0].sample : null;
+      return allScored[0] && allScored[0].score > 0 ? allScored[0].sample : null;
     }
 
     function inferEvidenceState(sample, text) {
@@ -1328,6 +1784,80 @@
       return sample.answer;
     }
 
+    function renderList(items) {
+      return `<ul>${items.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+    }
+
+    function renderActionTags(sample) {
+      if (!sample.aiActions) return "";
+      return `
+        <div class="answer-card">
+          <div class="answer-title">AI 处理动作</div>
+          <div class="answer-body">
+            <div class="tag-list">
+              ${sample.aiActions.map(action => `<span class="tag blue">${escapeHtml(action)}</span>`).join("")}
+            </div>
+            <p class="footer-note">是否转人工：${escapeHtml(sample.transferRequired || handoffLevel(sample, sample.evidenceState))}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderAnswerCompare(sample) {
+      if (!sample.wrongAnswer || !sample.expectedAnswer) return "";
+      return `
+        <div class="answer-card">
+          <div class="answer-title">错误回答 vs 期望回答</div>
+          <div class="answer-body">
+            <div class="answer-compare">
+              <div class="compare-card wrong">
+                <strong>AI 错误回答</strong>
+                <p>${escapeHtml(sample.wrongAnswer)}</p>
+              </div>
+              <div class="compare-card expected">
+                <strong>期望回答</strong>
+                <p>${escapeHtml(sample.expectedAnswer)}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderKnownFacts(sample) {
+      if (!sample.knownFacts) return "";
+      return `
+        <div class="answer-card">
+          <div class="answer-title">已知信息 / 待补充信息</div>
+          <div class="answer-body">${renderList(sample.knownFacts)}</div>
+        </div>
+      `;
+    }
+
+    function renderFurnitureMeta(sample) {
+      if (!sample.product && !sample.sources) return "";
+      return `
+        <div class="result-grid">
+          <div class="metric-card">
+            <span>场景名称</span>
+            <strong>${escapeHtml(sample.title || sample.type)}</strong>
+          </div>
+          <div class="metric-card">
+            <span>商品 / 业务对象</span>
+            <strong>${escapeHtml(sample.product || "未标注")}</strong>
+          </div>
+          <div class="metric-card">
+            <span>证据状态</span>
+            <strong>${escapeHtml(evidenceLabels[sample.evidenceState] || sample.evidenceState)}</strong>
+          </div>
+          <div class="metric-card">
+            <span>转人工</span>
+            <strong>${escapeHtml(sample.transferRequired || "按风险触发")}</strong>
+          </div>
+        </div>
+      `;
+    }
+
     function renderResult(sample, state) {
       const riskClass = riskStyles[sample.risk] || "gray";
       const handoff = handoffLevel(sample, state);
@@ -1355,32 +1885,64 @@
         </div>
 
         ${renderRiskStandards()}
+        ${renderFurnitureMeta(sample)}
+        ${renderActionTags(sample)}
+        ${renderAnswerCompare(sample)}
+        ${renderKnownFacts(sample)}
 
         <div class="answer-card">
           <div class="answer-title">边界内回答</div>
           <div class="answer-body">
-            <ul>${answer.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+            ${renderList(answer)}
           </div>
         </div>
 
         <div class="answer-card">
           <div class="answer-title">本样例风险依据</div>
           <div class="answer-body">
-            <ul>${sample.riskBasis.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+            ${renderList(sample.riskBasis)}
           </div>
         </div>
 
         <div class="answer-card">
           <div class="answer-title">AI 能做什么</div>
           <div class="answer-body">
-            <ul>${sample.canDo.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+            ${renderList(sample.canDo)}
           </div>
         </div>
 
         <div class="answer-card">
           <div class="answer-title">AI 不能做什么</div>
           <div class="answer-body">
-            <ul>${sample.cannotDo.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+            ${renderList(sample.cannotDo)}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSourceLevel(sample) {
+      if (!sample.sources) return "";
+      return `
+        <div class="mini-card">
+          <h4>知识来源等级</h4>
+          <div class="tag-list">
+            ${sample.sources.map(source => `<span class="tag ${sourceStyles[source] || "gray"}">${escapeHtml(source)}</span>`).join("")}
+          </div>
+          <div class="source-priority">${escapeHtml(sourcePriorityText)}</div>
+        </div>
+      `;
+    }
+
+    function renderConflictEvidence(sample) {
+      if (!sample.conflictEvidence) return "";
+      return `
+        <div class="mini-card">
+          <h4>${escapeHtml(sample.conflictEvidence.title)}</h4>
+          <div class="conflict-box">
+            <strong>冲突证据</strong>
+            ${renderList(sample.conflictEvidence.items)}
+            <strong>系统建议</strong>
+            ${renderList(sample.conflictEvidence.suggestion)}
           </div>
         </div>
       `;
@@ -1396,6 +1958,9 @@
             <span class="tag blue">${escapeHtml(sample.knowledgeDoc.category)}</span>
           </div>
         </div>
+
+        ${renderSourceLevel(sample)}
+        ${renderConflictEvidence(sample)}
 
         <div class="mini-card">
           <h4>命中原因</h4>
@@ -1435,6 +2000,34 @@
       return `会影响「${sample.type}」场景下的回答可信度，导致人工二次返工。`;
     }
 
+    function renderOptimizationLoop(sample) {
+      if (!sample.rootCauses && !sample.businessImpact && !sample.optimizationActions && !sample.regressionTests) return "";
+      return `
+        <div class="mini-card">
+          <h4>优化动作闭环</h4>
+          <p>从 badcase 根因回到知识库、规则、追问和回归测试，避免同类错误重复出现。</p>
+        </div>
+        <div class="optimization-grid">
+          <div class="source-card">
+            <strong>根因</strong>
+            ${renderList(sample.rootCauses || [])}
+          </div>
+          <div class="source-card">
+            <strong>业务影响</strong>
+            ${renderList(sample.businessImpact || [])}
+          </div>
+          <div class="source-card">
+            <strong>修改知识 / 规则 / 追问</strong>
+            ${renderList(sample.optimizationActions || [])}
+          </div>
+          <div class="source-card">
+            <strong>回归测试重点</strong>
+            ${renderList(sample.regressionTests || [])}
+          </div>
+        </div>
+      `;
+    }
+
     function renderBadcases(sample, state) {
       const extra = [];
       if (state === "noEvidence") {
@@ -1462,6 +2055,7 @@
             <p><strong>优化方案：</strong>${escapeHtml(item.action)}</p>
           </details>
         `).join("")}
+        ${renderOptimizationLoop(sample)}
       `;
     }
 
@@ -1505,22 +2099,24 @@
       const text = questionInput.value.trim();
       if (!text) {
         resultArea.className = "empty";
-        resultArea.textContent = "请先输入问题，或点击左侧 6 个示例问题。";
+        resultArea.textContent = `请先输入问题，或点击左侧 ${visibleSamples().length} 个示例问题。`;
         return;
       }
 
       const sample = findSampleByQuestion(text);
       if (!sample) {
         resultArea.className = "empty";
-        resultArea.textContent = "当前 Demo 只覆盖 6 条核心样例。这个问题可以作为后续评测集扩展项。";
+        resultArea.textContent = `当前 Demo 在「${currentGroup().label}」下覆盖 ${visibleSamples().length} 条核心样例。这个问题可以作为后续评测集扩展项。`;
         evidenceArea.innerHTML = "<div class=\"empty\">未命中当前业务知识库。</div>";
         badcaseArea.innerHTML = "<div class=\"empty\">可记录为“未覆盖问题 / 知识库缺口”。</div>";
         evaluationArea.innerHTML = "";
         return;
       }
 
+      activeGroupId = sampleGroup(sample);
       activeSampleId = sample.id;
       renderSamples();
+      renderQualityOverview();
       const state = inferEvidenceState(sample, text);
       renderResult(sample, state);
       renderEvidence(sample, state);
@@ -1528,15 +2124,30 @@
       renderEvaluation(sample, state);
     }
 
+    sceneTabs.addEventListener("click", (event) => {
+      const btn = event.target.closest("button[data-group]");
+      if (!btn) return;
+      activeGroupId = btn.dataset.group;
+      const first = visibleSamples()[0] || samples[0];
+      activeSampleId = first.id;
+      questionInput.value = first.question;
+      evidenceSelect.value = "auto";
+      renderSamples();
+      renderQualityOverview();
+      analyze();
+    });
+
     sampleList.addEventListener("click", (event) => {
       const btn = event.target.closest("button[data-id]");
       if (!btn) return;
       const sample = samples.find(item => item.id === btn.dataset.id);
       if (!sample) return;
+      activeGroupId = sampleGroup(sample);
       activeSampleId = sample.id;
       questionInput.value = sample.question;
       evidenceSelect.value = "auto";
       renderSamples();
+      renderQualityOverview();
       analyze();
     });
 
@@ -1564,10 +2175,12 @@
     });
 
     resetBtn.addEventListener("click", () => {
-      activeSampleId = samples[0].id;
-      questionInput.value = samples[0].question;
+      const first = visibleSamples()[0] || samples[0];
+      activeSampleId = first.id;
+      questionInput.value = first.question;
       evidenceSelect.value = "auto";
       renderSamples();
+      renderQualityOverview();
       analyze();
     });
 
